@@ -1,1288 +1,632 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tuturmus</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <style>
-  :root{
-    --bg:#13101d;
-    --app:#1b1229;
-    --card:#231638;
-    --card2:#1e1432;
-    --accent:#7b68c8;
-    --accent-dark:#5c4ea8;
-    --text:#ffffff;
-    --muted:rgba(255,255,255,0.52);
-    --border:rgba(255,255,255,0.07);
-    --r:14px;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{
-    background:var(--bg);
-    min-height:100vh;
-    font-family:'Outfit',sans-serif;
-    color:var(--text);
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
-    height:100vh;
-  }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tuturmus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="app-page">
+    <audio id="audio"></audio>
 
-  /* ── OUTER WRAPPER ── */
-  .outer{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    padding:12px;
-    gap:0;
-    overflow:hidden;
-  }
-
-  /* ── APP BOX ── */
-  .app-box{
-    flex:1;
-    background:var(--app);
-    border-radius:20px 20px 0 0;
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
-    position:relative;
-  }
-
-  /* ── TOP BAR ── */
-  .top-bar{
-    display:grid;
-    grid-template-columns:1fr auto 1fr;
-    align-items:center;
-    padding:14px 20px;
-    gap:16px;
-    flex-shrink:0;
-  }
-  .search-wrap{
-    position:relative;
-    width:200px;
-  }
-  .search-wrap input{
-    width:100%;
-    background:var(--card);
-    border:none;
-    border-radius:20px;
-    padding:9px 14px 9px 36px;
-    font-size:13px;
-    font-family:'Outfit',sans-serif;
-    color:var(--muted);
-    outline:none;
-  }
-  .search-wrap input::placeholder{color:var(--muted);}
-  .search-icon{
-    position:absolute;left:12px;top:50%;transform:translateY(-50%);
-    width:14px;height:14px;opacity:0.5;
-  }
-  .tab-group{
-    display:flex;gap:8px;
-    background:transparent;
-  }
-  .tab-btn{
-    background:var(--card);
-    border:none;border-radius:20px;
-    padding:9px 22px;
-    font-size:14px;font-family:'Outfit',sans-serif;font-weight:500;
-    color:var(--muted);cursor:pointer;
-    transition:all 0.2s;
-  }
-  .tab-btn.active{
-    background:var(--accent-dark);
-    color:#fff;
-  }
-  .tab-btn:hover:not(.active){color:#fff;}
-  .logo-area{
-    display:flex;justify-content:flex-end;align-items:center;
-    gap:14px;
-  }
-  .logo-mark{
-    cursor:pointer;
-    transition:opacity 0.2s;
-  }
-  .logo-mark:hover{opacity:0.7;}
-  .profile-nav-btn{
-    background:var(--card);
-    border:none;border-radius:20px;
-    padding:8px 16px;
-    font-size:13px;font-family:'Outfit',sans-serif;
-    color:var(--muted);cursor:pointer;
-    transition:all 0.2s;
-  }
-  .profile-nav-btn.active{background:var(--accent-dark);color:#fff;}
-  .profile-nav-btn:hover:not(.active){color:#fff;}
-
-  /* ── CONTENT ROW ── */
-  .content-row{
-    flex:1;
-    display:grid;
-    grid-template-columns:270px 1fr;
-    overflow:hidden;
-    position:relative;
-  }
-
-  /* ── SIDEBAR ── */
-  .sidebar{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    padding:0 12px 12px;
-    overflow-y:auto;
-    overflow-x:hidden;
-  }
-  .sidebar::-webkit-scrollbar{width:4px;}
-  .sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-
-  .sidebar-card{
-    background:var(--card);
-    border-radius:var(--r);
-    padding:14px;
-    min-height:120px;
-  }
-  .no-recent{
-    color:var(--text);
-    font-size:17px;
-    font-weight:700;
-    text-align:center;
-    padding:28px 0;
-  }
-  .song-item{
-    display:flex;align-items:center;gap:10px;
-    padding:7px 4px;border-radius:8px;
-    cursor:pointer;transition:background 0.15s;
-  }
-  .song-item:hover{background:rgba(255,255,255,0.06);}
-  .song-item-art{
-    width:36px;height:36px;border-radius:6px;
-    flex-shrink:0;display:flex;align-items:center;justify-content:center;
-    font-size:16px;
-  }
-  .song-item-info{flex:1;min-width:0;}
-  .song-item-title{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .song-item-artist{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .song-item.playing .song-item-title{color:var(--accent);}
-
-  .playlist-header{
-    display:flex;align-items:center;gap:10px;
-    padding:6px 4px;cursor:pointer;
-    font-size:15px;font-weight:600;
-  }
-  .add-icon{
-    width:28px;height:28px;border:2px solid rgba(255,255,255,0.6);
-    border-radius:6px;display:flex;align-items:center;justify-content:center;
-    font-size:18px;color:rgba(255,255,255,0.7);
-    flex-shrink:0;
-  }
-  .playlist-item{
-    display:flex;align-items:center;gap:10px;
-    padding:7px 4px;border-radius:8px;cursor:pointer;
-    transition:background 0.15s;
-  }
-  .playlist-item:hover{background:rgba(255,255,255,0.06);}
-  .playlist-art{
-    width:44px;height:44px;border-radius:8px;
-    flex-shrink:0;overflow:hidden;
-    display:grid;grid-template-columns:1fr 1fr;
-  }
-  .playlist-art-single{
-    width:44px;height:44px;border-radius:8px;
-    flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;
-    font-size:20px;
-  }
-  .playlist-name{font-size:13px;font-weight:600;}
-  .playlist-count{font-size:11px;color:var(--muted);}
-
-  /* ── MAIN CONTENT ── */
-  .main-content{
-    position:relative;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-  }
-  .content-panel{
-    flex:1;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-    padding:0 16px 12px;
-  }
-  .no-content{
-    flex:1;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:36px;
-    font-weight:800;
-    color:rgba(255,255,255,0.12);
-  }
-
-  /* ── VINYL ── */
-  .vinyl-area{
-    position:absolute;
-    right:-80px;
-    top:50%;
-    transform:translateY(-50%);
-    width:360px;
-    height:360px;
-    pointer-events:none;
-    z-index:5;
-  }
-  .vinyl-disc{
-    width:100%;height:100%;
-    border-radius:50%;
-    position:relative;
-    background:conic-gradient(
-      from 0deg,
-      #ff9999,#ffcc88,#ffffaa,#aaffaa,#88ccff,#cc88ff,#ff99cc,
-      #ff9999,#ffcc88,#ffffaa,#aaffaa,#88ccff,#cc88ff,#ff99cc,#ff9999
-    );
-    animation:spin 6s linear infinite;
-    animation-play-state:paused;
-  }
-  .vinyl-disc.spinning{animation-play-state:running;}
-  @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-  .vinyl-inner{
-    position:absolute;
-    top:12%;left:12%;right:12%;bottom:12%;
-    border-radius:50%;
-    background:#1a1228;
-  }
-  .vinyl-label{
-    position:absolute;
-    top:28%;left:28%;right:28%;bottom:28%;
-    border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    font-size:28px;
-    background:#1b1229;
-    transition:background 0.4s;
-  }
-  .vinyl-center-dot{
-    position:absolute;
-    top:50%;left:50%;
-    width:18px;height:18px;
-    border-radius:50%;
-    background:#111;
-    transform:translate(-50%,-50%);
-  }
-
-  /* ── LIVE CHAT ── */
-  .chat-wrap{
-    display:flex;
-    flex-direction:column;
-    height:100%;
-    gap:0;
-  }
-  .chat-messages{
-    flex:1;
-    overflow-y:auto;
-    padding:10px 6px;
-    display:flex;
-    flex-direction:column;
-    gap:14px;
-  }
-  .chat-messages::-webkit-scrollbar{width:4px;}
-  .chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-  .chat-msg{
-    display:flex;align-items:flex-start;gap:12px;
-  }
-  .chat-avatar{
-    width:36px;height:36px;border-radius:50%;flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;
-    font-size:14px;font-weight:700;color:#fff;
-  }
-  .chat-text{font-size:14px;line-height:1.5;padding-top:6px;}
-  .chat-divider{border:none;border-top:1px solid var(--border);margin:4px 0;}
-  .chat-input-wrap{
-    display:flex;align-items:center;gap:10px;
-    padding:10px 0 4px;
-    border-top:1px solid var(--border);
-    margin-top:6px;
-  }
-  .chat-icon{
-    width:18px;height:18px;opacity:0.4;flex-shrink:0;
-  }
-  .chat-input{
-    flex:1;
-    background:transparent;
-    border:none;
-    font-size:14px;
-    font-family:'Outfit',sans-serif;
-    color:var(--text);
-    outline:none;
-    padding:0;
-  }
-  .chat-input::placeholder{color:var(--muted);}
-  .send-btn{
-    width:32px;height:32px;
-    background:var(--accent);
-    border:none;border-radius:50%;
-    cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    transition:background 0.2s;
-    flex-shrink:0;
-  }
-  .send-btn:hover{background:var(--accent-dark);}
-
-  /* ── LYRICS ── */
-  .lyrics-wrap{
-    padding:16px 8px;
-    display:flex;
-    gap:0;
-    height:100%;
-    overflow:hidden;
-  }
-  .lyrics-text-col{
-    flex:1;
-    overflow-y:auto;
-    padding-right:8px;
-  }
-  .lyrics-text-col::-webkit-scrollbar{width:4px;}
-  .lyrics-text-col::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-  .lyric-line{
-    font-size:20px;
-    font-weight:500;
-    color:rgba(255,255,255,0.25);
-    line-height:2.2;
-    cursor:pointer;
-    transition:color 0.3s,font-size 0.3s;
-    padding:0 4px;
-  }
-  .lyric-line.active{
-    color:rgba(255,255,255,0.75);
-    font-size:22px;
-  }
-  .lyric-line.empty{height:24px;}
-
-  /* ── PROFILE ── */
-  .profile-wrap{
-    padding:16px 8px;
-    overflow-y:auto;
-    height:100%;
-  }
-  .profile-wrap::-webkit-scrollbar{width:4px;}
-  .profile-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-  .profile-header{
-    display:flex;gap:24px;align-items:flex-start;margin-bottom:28px;
-  }
-  .profile-avatar{
-    width:100px;height:100px;border-radius:50%;
-    flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;
-    font-size:36px;font-weight:800;
-    background:linear-gradient(135deg,#7b68c8,#c77dff);
-    color:#fff;
-    position:relative;overflow:hidden;cursor:pointer;
-  }
-  .profile-avatar img{
-    width:100%;height:100%;object-fit:cover;position:absolute;inset:0;
-    border-radius:50%;
-  }
-  .profile-info{flex:1;}
-  .profile-username{font-size:24px;font-weight:800;margin-bottom:4px;}
-  .profile-joined{font-size:14px;color:var(--muted);font-style:italic;margin-bottom:10px;}
-  .profile-bio-label{font-size:14px;font-weight:700;margin-bottom:4px;}
-  .profile-bio{
-    font-size:14px;color:rgba(255,255,255,0.8);line-height:1.5;
-    background:transparent;border:none;
-    font-family:'Outfit',sans-serif;
-    width:100%;resize:none;outline:none;
-    cursor:pointer;
-  }
-  .profile-bio:focus{
-    border-bottom:1px solid var(--accent);
-    padding-bottom:4px;
-  }
-  .profile-playlists-title{font-size:20px;font-weight:700;margin-bottom:14px;}
-  .profile-playlists-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
-    gap:16px;
-  }
-  .profile-playlist-card{cursor:pointer;text-align:center;}
-  .profile-playlist-art{
-    width:100%;aspect-ratio:1;border-radius:10px;
-    margin-bottom:8px;
-    display:flex;align-items:center;justify-content:center;
-    font-size:36px;
-    background:var(--card);
-    overflow:hidden;
-  }
-  .profile-playlist-art img{width:100%;height:100%;object-fit:cover;}
-  .profile-playlist-name{font-size:13px;font-weight:600;word-break:break-word;}
-
-  /* ── PLAYER BAR ── */
-  .player-bar{
-    background:var(--app);
-    border-top:1px solid var(--border);
-    padding:10px 20px;
-    display:grid;
-    grid-template-columns:200px 1fr 180px;
-    align-items:center;
-    gap:16px;
-    flex-shrink:0;
-  }
-  .now-playing{display:flex;align-items:center;gap:12px;}
-  .np-art{
-    width:48px;height:48px;border-radius:8px;
-    flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;
-    font-size:22px;
-    background:var(--card);
-    transition:background 0.4s;
-  }
-  .np-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .np-artist{font-size:12px;color:var(--muted);}
-  .np-dashes{
-    display:flex;flex-direction:column;gap:4px;
-  }
-  .np-line1{
-    width:90px;height:8px;background:rgba(255,255,255,0.15);border-radius:4px;
-  }
-  .np-line2{
-    width:60px;height:6px;background:rgba(255,255,255,0.1);border-radius:4px;
-  }
-
-  .controls-col{
-    display:flex;flex-direction:column;align-items:center;gap:8px;
-  }
-  .ctrl-btns{display:flex;align-items:center;gap:20px;}
-  .ctrl-btn{
-    background:none;border:none;
-    cursor:pointer;
-    color:rgba(255,255,255,0.7);
-    display:flex;align-items:center;justify-content:center;
-    transition:color 0.2s,transform 0.1s;
-    padding:4px;
-  }
-  .ctrl-btn:hover{color:#fff;}
-  .ctrl-btn:active{transform:scale(0.9);}
-  .play-btn{
-    width:36px;height:36px;
-    background:var(--accent);
-    border:none;border-radius:50%;
-    cursor:pointer;
-    color:#fff;
-    display:flex;align-items:center;justify-content:center;
-    transition:background 0.2s,transform 0.1s;
-  }
-  .play-btn:hover{background:var(--accent-dark);}
-  .play-btn:active{transform:scale(0.95);}
-  .progress-row{
-    display:flex;align-items:center;gap:10px;
-    width:100%;
-  }
-  .time-label{font-size:11px;color:var(--muted);white-space:nowrap;min-width:32px;}
-  .progress-track{
-    flex:1;height:3px;background:rgba(255,255,255,0.15);
-    border-radius:2px;cursor:pointer;
-    position:relative;
-  }
-  .progress-fill{
-    height:100%;background:rgba(255,255,255,0.7);
-    border-radius:2px;transition:width 0.5s linear;
-    width:0%;
-  }
-  .vol-col{
-    display:flex;align-items:center;gap:10px;justify-content:flex-end;
-  }
-  .vol-icon{color:var(--muted);font-size:18px;cursor:pointer;}
-  .vol-slider{
-    width:90px;
-    
-    appearance:none;
-    height:3px;background:rgba(255,255,255,0.2);
-    border-radius:2px;outline:none;cursor:pointer;
-  }
-  .vol-slider::-webkit-slider-thumb{
-    -webkit-appearance:none;
-    width:12px;height:12px;
-    border-radius:50%;background:#fff;
-    cursor:pointer;
-  }
-
-  /* ── FOOTER STRIP ── */
-  .footer-strip{
-    height:12px;background:var(--bg);
-    border-radius:0 0 12px 12px;
-    flex-shrink:0;
-  }
-
-  /* ── MODAL ── */
-  .modal-overlay{
-    position:fixed;inset:0;
-    background:rgba(0,0,0,0.7);
-    display:none;align-items:center;justify-content:center;
-    z-index:100;
-  }
-  .modal-overlay.show{display:flex;}
-  .modal{
-    background:#231638;
-    border-radius:18px;
-    padding:32px;
-    width:380px;
-    display:flex;flex-direction:column;gap:16px;
-  }
-  .modal h3{font-size:18px;font-weight:700;}
-  .modal input, .modal textarea{
-    background:rgba(255,255,255,0.08);
-    border:1px solid var(--border);
-    border-radius:10px;
-    padding:12px 14px;
-    font-size:14px;
-    font-family:'Outfit',sans-serif;
-    color:#fff;
-    outline:none;
-    width:100%;
-    resize:none;
-  }
-  .modal input::placeholder, .modal textarea::placeholder{color:var(--muted);}
-  .modal-actions{display:flex;gap:10px;justify-content:flex-end;}
-  .btn-cancel{
-    background:transparent;border:1px solid var(--border);
-    border-radius:8px;padding:10px 18px;
-    font-size:14px;font-family:'Outfit',sans-serif;
-    color:var(--muted);cursor:pointer;
-  }
-  .btn-cancel:hover{color:#fff;}
-  .btn-create{
-    background:var(--accent);border:none;
-    border-radius:8px;padding:10px 20px;
-    font-size:14px;font-family:'Outfit',sans-serif;font-weight:600;
-    color:#fff;cursor:pointer;
-  }
-  .btn-create:hover{background:var(--accent-dark);}
-  .song-select-list{display:flex;flex-direction:column;gap:8px;}
-  .song-check{
-    display:flex;align-items:center;gap:10px;
-    padding:8px;border-radius:8px;cursor:pointer;
-  }
-  .song-check:hover{background:rgba(255,255,255,0.05);}
-  .song-check input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);}
-
-  /* search dropdown */
-  .search-results-dropdown{
-    position:absolute;
-    top:calc(100% + 4px);
-    left:0;right:0;
-    background:#231638;
-    border-radius:10px;
-    overflow:hidden;
-    display:none;
-    z-index:50;
-    box-shadow:0 8px 24px rgba(0,0,0,0.4);
-  }
-  .search-results-dropdown.show{display:block;}
-  .search-result-item{
-    display:flex;align-items:center;gap:10px;
-    padding:10px 12px;cursor:pointer;
-    transition:background 0.15s;
-    font-size:13px;
-  }
-  .search-result-item:hover{background:rgba(255,255,255,0.06);}
-  .search-result-art{
-    width:30px;height:30px;border-radius:5px;
-    display:flex;align-items:center;justify-content:center;font-size:14px;
-    flex-shrink:0;
-  }
-  </style>
-</head>
-<body>
-
-<audio id="audio"></audio>
-
-<!-- Add Playlist Modal -->
-<div class="modal-overlay" id="playlist-modal">
-  <div class="modal">
-    <h3>New Playlist</h3>
-    <input type="text" id="new-playlist-name" placeholder="Playlist name"/>
-    <p style="font-size:13px;color:var(--muted);">Add songs:</p>
-    <div class="song-select-list" id="song-select-list"></div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closePlaylistModal()">Cancel</button>
-      <button class="btn-create" onclick="createPlaylist()">Create</button>
-    </div>
-  </div>
-</div>
-
-<!-- Edit Bio Modal -->
-<div class="modal-overlay" id="bio-modal">
-  <div class="modal">
-    <h3>Edit Profile</h3>
-    <input type="text" id="edit-username" placeholder="Username"/>
-    <textarea id="edit-bio" rows="4" placeholder="Write your bio..."></textarea>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeBioModal()">Cancel</button>
-      <button class="btn-create" onclick="saveBio()">Save</button>
-    </div>
-  </div>
-</div>
-
-<div class="outer">
-  <div class="app-box" id="app-box">
-
-    <!-- TOP BAR -->
-    <div class="top-bar">
-      <div style="position:relative;">
-        <div class="search-wrap">
-          <svg class="search-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="6.5" cy="6.5" r="5" stroke="white" stroke-width="1.5"/>
-            <path d="M10 10L14 14" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          <input type="text" id="search-input" placeholder="Recently searched" oninput="onSearch(this.value)" onblur="setTimeout(()=>closeSearch(),150)"/>
-        </div>
-        <div class="search-results-dropdown" id="search-dropdown"></div>
-      </div>
-      <div class="tab-group" id="tab-group">
-        <button class="tab-btn active" id="tab-chat" onclick="switchTab('chat')">Live Chat</button>
-        <button class="tab-btn" id="tab-lyrics" onclick="switchTab('lyrics')">Lyrics</button>
-      </div>
-      <div class="logo-area">
-        <button class="profile-nav-btn" id="profile-nav" onclick="switchView('profile')">Profile</button>
-        <div class="logo-mark" onclick="switchView('main')">
-          <svg width="44" height="44" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
-            <text x="2" y="52" font-family="Arial Black,sans-serif" font-weight="900" font-size="48" fill="#fff">T</text>
-            <text x="33" y="52" font-family="Arial Black,sans-serif" font-weight="900" font-size="48" fill="#fff">J</text>
-            <circle cx="58" cy="55" r="5" fill="#fff"/>
-            <rect x="62" y="35" width="4" height="20" rx="2" fill="#fff"/>
-            <rect x="62" y="35" width="14" height="4" rx="2" fill="#fff"/>
-          </svg>
+    <!-- Add Playlist Modal -->
+    <div class="modal-overlay" id="playlist-modal">
+      <div class="modal">
+        <h3>New Playlist</h3>
+        <input type="text" id="new-playlist-name" placeholder="Playlist name" />
+        <p class="modal-help">Add songs:</p>
+        <div class="song-select-list" id="song-select-list"></div>
+        <div class="modal-actions">
+          <button class="btn-cancel" onclick="closePlaylistModal()">Cancel</button>
+          <button class="btn-create" onclick="createPlaylist()">Create</button>
         </div>
       </div>
     </div>
 
-    <!-- CONTENT ROW -->
-    <div class="content-row">
-
-      <!-- SIDEBAR -->
-      <aside class="sidebar">
-        <!-- Recent / song list -->
-        <div class="sidebar-card" id="recent-card">
-          <div class="no-recent" id="no-recent-msg">No Recent search</div>
+    <!-- Edit Bio Modal -->
+    <div class="modal-overlay" id="bio-modal">
+      <div class="modal">
+        <h3>Edit Profile</h3>
+        <input type="text" id="edit-username" placeholder="Username" />
+        <textarea id="edit-bio" rows="4" placeholder="Write your bio..."></textarea>
+        <div class="modal-actions">
+          <button class="btn-cancel" onclick="closeBioModal()">Cancel</button>
+          <button class="btn-create" onclick="saveBio()">Save</button>
         </div>
-        <!-- Playlists -->
-        <div class="sidebar-card" style="flex:1;min-height:200px;">
-          <div class="playlist-header" onclick="openPlaylistModal()">
-            <div class="add-icon">+</div>
-            <span>Add Playlist</span>
+      </div>
+    </div>
+
+    <div class="outer">
+      <div class="app-box" id="app-box">
+
+        <!-- TOP BAR -->
+        <div class="top-bar">
+          <div class="search-column">
+            <div class="search-wrap">
+              <svg class="search-icon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="6.5" cy="6.5" r="5" stroke="white" stroke-width="1.5"/>
+                <path d="M10 10L14 14" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <input type="text" id="search-input" placeholder="Recently searched"
+                oninput="onSearch(this.value)"
+                onblur="setTimeout(() => closeSearch(), 150)" />
+            </div>
+            <div class="search-results-dropdown" id="search-dropdown"></div>
           </div>
-          <div id="playlists-list"></div>
-        </div>
-      </aside>
-
-      <!-- MAIN CONTENT -->
-      <main class="main-content">
-        <!-- VINYL -->
-        <div class="vinyl-area">
-          <div class="vinyl-disc" id="vinyl-disc">
-            <div class="vinyl-inner">
-              <div class="vinyl-label" id="vinyl-label" style="font-size:50px;">💿</div>
-              <div class="vinyl-center-dot"></div>
+          <div class="tab-group" id="tab-group">
+            <button class="tab-btn active" id="tab-chat" onclick="switchTab('chat')">Live Chat</button>
+            <button class="tab-btn" id="tab-lyrics" onclick="switchTab('lyrics')">Lyrics</button>
+          </div>
+          <div class="logo-area">
+            <button class="profile-nav-btn" id="profile-nav" onclick="switchView('profile')">Profile</button>
+            <div class="logo-mark" onclick="switchView('main')">
+              <svg width="44" height="44" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+                <text x="10" y="56" font-family="Arial Black,sans-serif" font-weight="900" font-size="58" fill="#fff">T</text>
+              </svg>
             </div>
           </div>
         </div>
 
-        <div class="content-panel" id="content-panel">
-          <!-- Filled by JS -->
+        <!-- CONTENT ROW -->
+        <div class="content-row">
+          <!-- SIDEBAR -->
+          <aside class="sidebar">
+            <div class="sidebar-card" id="recent-card">
+              <div class="no-recent" id="no-recent-msg">No Recent search</div>
+            </div>
+            <div class="sidebar-card playlist-card">
+              <div class="playlist-header" onclick="openPlaylistModal()">
+                <div class="add-icon">+</div>
+                <span>Add Playlist</span>
+              </div>
+              <div id="playlists-list"></div>
+            </div>
+          </aside>
+
+          <!-- MAIN CONTENT -->
+          <main class="main-content">
+            <div class="vinyl-area">
+              <div class="vinyl-disc" id="vinyl-disc">
+                <div class="vinyl-inner">
+                  <div class="vinyl-label" id="vinyl-label">💿</div>
+                  <div class="vinyl-center-dot"></div>
+                </div>
+              </div>
+            </div>
+            <div class="content-panel" id="content-panel"></div>
+          </main>
         </div>
-      </main>
 
-    </div>
-
-    <!-- PLAYER BAR -->
-    <div class="player-bar">
-      <!-- Now playing -->
-      <div class="now-playing">
-        <div class="np-art" id="np-art">🎵</div>
-        <div id="np-info">
-          <div class="np-dashes">
-            <div class="np-line1"></div>
-            <div class="np-line2"></div>
+        <!-- PLAYER BAR -->
+        <div class="player-bar">
+          <div class="now-playing">
+            <div class="np-art" id="np-art">🎵</div>
+            <div id="np-info">
+              <div class="np-dashes">
+                <div class="np-line1"></div>
+                <div class="np-line2"></div>
+              </div>
+            </div>
+          </div>
+          <div class="controls-col">
+            <div class="ctrl-btns">
+              <button class="ctrl-btn" onclick="prevSong()" title="Previous">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6 6h2v12H6V6zm3.5 6 8.5 6V6l-8.5 6z"/>
+                </svg>
+              </button>
+              <button class="play-btn" id="play-btn" onclick="togglePlay()" title="Play/Pause">
+                <svg id="play-icon" width="18" height="18" viewBox="0 0 24 24" fill="white">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </button>
+              <button class="ctrl-btn" onclick="nextSong()" title="Next">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                </svg>
+              </button>
+            </div>
+            <div class="progress-row">
+              <span class="time-label" id="time-cur">0:00</span>
+              <div class="progress-track" id="progress-track" onclick="seekTo(event)">
+                <div class="progress-fill" id="progress-fill"></div>
+              </div>
+              <span class="time-label" id="time-dur">0:00</span>
+            </div>
+          </div>
+          <div class="vol-col">
+            <span class="vol-icon">🔊</span>
+            <input type="range" class="vol-slider" id="vol-slider"
+              min="0" max="100" value="80" oninput="setVolume(this.value)" />
           </div>
         </div>
+
       </div>
-      <!-- Controls -->
-      <div class="controls-col">
-        <div class="ctrl-btns">
-          <button class="ctrl-btn" onclick="prevSong()" title="Previous">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6V6zm3.5 6 8.5 6V6l-8.5 6z"/></svg>
-          </button>
-          <button class="play-btn" id="play-btn" onclick="togglePlay()" title="Play/Pause">
-            <svg id="play-icon" width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <button class="ctrl-btn" onclick="nextSong()" title="Next">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-          </button>
-        </div>
-        <div class="progress-row">
-          <span class="time-label" id="time-cur">0:00</span>
-          <div class="progress-track" id="progress-track" onclick="seekTo(event)">
-            <div class="progress-fill" id="progress-fill"></div>
-          </div>
-          <span class="time-label" id="time-dur">0:00</span>
-        </div>
-      </div>
-      <!-- Volume -->
-      <div class="vol-col">
-        <span class="vol-icon">🔊</span>
-        <input type="range" class="vol-slider" id="vol-slider" min="0" max="100" value="80" oninput="setVolume(this.value)"/>
-      </div>
+      <div class="footer-strip"></div>
     </div>
 
-  </div>
-  <div class="footer-strip"></div>
-</div>
+    <script>
+      // ─── DATA ────────────────────────────────────────────────────────────────────
 
-<script>
-// ─── DATA ────────────────────────────────────────────────────────────────────
+      const SONGS = [
+        { id: 0, title: "Boulevard of Demos", artist: "Tuturmus Band", emoji: "🎸", color: "#b22222",
+          src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+          lyrics: ["Another day, another beat to play","The rhythm calls me down this road today","I hear the echo through the city rain","A melody that brings me back again","","Boulevard of demos in my mind","The chords I left and the ones I find","Every note a story, every rest a breath","Music is the line between life and death","","I strum the strings until my fingers bleed","The stage is dark but I know what I need","The crowd is silent, waiting for the drop","The beat is rising and it will not stop","","Boulevard of demos in my mind","The chords I left and the ones I find","Every note a story, every rest a breath","Music is the line between life and death"] },
+        { id: 1, title: "Midnight Frequency", artist: "The Static Waves", emoji: "🌊", color: "#1a5276",
+          src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+          lyrics: ["Midnight frequency on the dial","Signals drifting through the static file","You tune in and you hear my voice","Lost in noise but it's still your choice","","We're broadcasting from nowhere land","Transmitting more than you understand","Every wavelength carries a truth","From the darkness comes the proof","","The antenna bends against the storm","But the signal always finds its form","Through the interference, through the haze","Our frequency will set the waves ablaze","","Midnight frequency on the dial","Signals drifting through the static file","You tune in and you hear my voice","Lost in noise but it's still your choice"] },
+        { id: 2, title: "Nutshell", artist: "Alice in Chains", emoji: "🌙", color: "#5b4b5d",
+          src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+          lyrics: ["Quiet room, loud thoughts tonight","A cold light leaning through the blinds","Holding on through the weight of rain","Trying to breathe through the static pain","","Soft voices in a broken hall","Shadows stretch and the curtains fall","Every step feels a little bit slow","But the ember still refuses to go","","If the night keeps asking me to stay","I will follow where the echoes lay","Even in the hollow, even in the gray","There is still a song inside the fray"] },
+        { id: 3, title: "Down in a Hole", artist: "Alice in Chains", emoji: "🕯️", color: "#3e3a54",
+          src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
+          lyrics: ["Falling leaves and a sky of stone","A quiet ache that feels like home","Deep in the ground where the echoes live","Learning what the dark can give","","Hands on the wire, heart on the edge","Standing still on a narrow ledge","Every cracked line tells a truth","Every scar holds a piece of youth","","If the road bends under the rain","I keep walking through the grain","Down in the hole, but not alone","A low-lit fire is still my throne"] },
+        { id: 4, title: "Rooster", artist: "Alice in Chains", emoji: "🐓", color: "#7a4e2d",
+          src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
+          lyrics: ["Dust on the boots and a red dawn line","A warning call in the morning pine","The world got quiet when the shell fell near","But the pulse kept pounding through the fear","","Fields of smoke and a broken sky","Learning how to survive, not why","Every breath is a counted sound","Every step is a mark in the ground","","When the day turns hard and cold","I keep the fire in the fold","A stubborn beat in the wake of the storm","Something fierce keeps me warm"] },
+        { id: 5, title: "I Stay Away", artist: "Alice in Chains", emoji: "🪽", color: "#4a6fa5",
+          src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
+          lyrics: ["Blue light falling on empty streets","A distant hum and a softer beat","I keep my distance but I still feel near","Listening close for the shape of fear","","Windows open to the evening air","Half of me is already there","A drifting tune on a hidden wire","Turning restraint into a small fire","","If I step back, I do not disappear","I can still hold what matters here","In the quiet, in the sway","I learn to stay, then drift away"] }
+      ];
 
-const SONGS = [
-  {
-    id: 0,
-    title: "Boulevard of Demos",
-    artist: "Tuturmus Band",
-    emoji: "🎸",
-    color: "#b22222",
-    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-    lyrics: [
-      "Another day, another beat to play",
-      "The rhythm calls me down this road today",
-      "I hear the echo through the city rain",
-      "A melody that brings me back again",
-      "",
-      "Boulevard of demos in my mind",
-      "The chords I left and the ones I find",
-      "Every note a story, every rest a breath",
-      "Music is the line between life and death",
-      "",
-      "I strum the strings until my fingers bleed",
-      "The stage is dark but I know what I need",
-      "The crowd is silent, waiting for the drop",
-      "The beat is rising and it will not stop",
-      "",
-      "Boulevard of demos in my mind",
-      "The chords I left and the ones I find",
-      "Every note a story, every rest a breath",
-      "Music is the line between life and death"
-    ]
-  },
-  {
-    id: 1,
-    title: "Midnight Frequency",
-    artist: "The Static Waves",
-    emoji: "🌊",
-    color: "#1a5276",
-    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-    lyrics: [
-      "Midnight frequency on the dial",
-      "Signals drifting through the static file",
-      "You tune in and you hear my voice",
-      "Lost in noise but it's still your choice",
-      "",
-      "We're broadcasting from nowhere land",
-      "Transmitting more than you understand",
-      "Every wavelength carries a truth",
-      "From the darkness comes the proof",
-      "",
-      "The antenna bends against the storm",
-      "But the signal always finds its form",
-      "Through the interference, through the haze",
-      "Our frequency will set the waves ablaze",
-      "",
-      "Midnight frequency on the dial",
-      "Signals drifting through the static file",
-      "You tune in and you hear my voice",
-      "Lost in noise but it's still your choice"
-    ]
-  }
-];
+      const SEED_CHATS = [
+        ["B", "HELLL YEAHHH!!!!", "#c0392b"],
+        ["S", "This song is so great while studying.", "#8e44ad"],
+        ["N", "I lovee the way they play this laaalaaaa", "#2980b9"],
+        ["R", "LETSSS GOOO!!!", "#27ae60"],
+        ["L", "LAAAALAAAALAAAAA", "#e67e22"],
+        ["G", "I love dis song its so relatable", "#7b68c8"]
+      ];
 
-const SEED_CHATS = [
-  ["B","HELLL YEAHHH!!!!","#c0392b"],
-  ["S","This song is so great while studying.","#8e44ad"],
-  ["N","I lovee the way they play this laaalaaaa","#2980b9"],
-  ["R","LETSSS GOOO!!!","#27ae60"],
-  ["L","LAAAALAAAALAAAAA","#e67e22"],
-  ["G","I love dis song its so relatable","#7b68c8"]
-];
+      // ─── STATE ───────────────────────────────────────────────────────────────────
 
-// ─── STATE ───────────────────────────────────────────────────────────────────
+      let currentSongIdx = 0;
+      let isPlaying = false;
+      let currentView = "main";
+      let currentTab = "chat";
+      let songLoaded = false;
+      let user = null;
+      let chatData = {};
+      let recentSearches = [];
 
-let currentSongIdx = 0;
-let isPlaying = false;
-let currentView = 'main'; // main | profile
-let currentTab = 'chat';  // chat | lyrics
-let songLoaded = false;
-let user = null;
-let chatData = {}; // {songId: [{user,avatar,color,msg}]}
-let recentSearches = []; // [{songId}]
-let currentLyricIdx = 0;
-let lyricTimer = null;
+      const audio = document.getElementById("audio");
 
-const audio = document.getElementById('audio');
+      // ─── INIT ────────────────────────────────────────────────────────────────────
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
+      function init() {
+        user = JSON.parse(localStorage.getItem("tt_current") || "null");
+        if (!user) { window.location.href = "admin.html"; return; }
 
-function init() {
-  user = JSON.parse(localStorage.getItem('tt_current') || 'null');
-  if (!user) { window.location.href = 'index.html'; return; }
+        SONGS.forEach(s => {
+          const key = "tt_chat_" + s.id;
+          if (!localStorage.getItem(key)) {
+            const msgs = SEED_CHATS.map(([a, m, c]) => ({ user: "User" + a, avatar: a, color: c, msg: m }));
+            localStorage.setItem(key, JSON.stringify(msgs));
+          }
+          chatData[s.id] = JSON.parse(localStorage.getItem("tt_chat_" + s.id));
+        });
 
-  // Seed chat
-  SONGS.forEach(s => {
-    const key = 'tt_chat_' + s.id;
-    if (!localStorage.getItem(key)) {
-      const msgs = SEED_CHATS.map(([a,m,c]) => ({user: 'User'+a, avatar: a, color: c, msg: m}));
-      localStorage.setItem(key, JSON.stringify(msgs));
-    }
-    chatData[s.id] = JSON.parse(localStorage.getItem('tt_chat_'+s.id));
-  });
+        recentSearches = JSON.parse(localStorage.getItem("tt_recent") || "[]");
+        audio.volume = 0.8;
+        audio.addEventListener("timeupdate", onTimeUpdate);
+        audio.addEventListener("ended", nextSong);
+        audio.addEventListener("loadedmetadata", updateDuration);
+        renderSidebar();
+        renderContent();
+      }
 
-  recentSearches = JSON.parse(localStorage.getItem('tt_recent') || '[]');
+      // ─── AUDIO ───────────────────────────────────────────────────────────────────
 
-  audio.volume = 0.8;
-  audio.addEventListener('timeupdate', onTimeUpdate);
-  audio.addEventListener('ended', nextSong);
-  audio.addEventListener('loadedmetadata', updateDuration);
+      function loadSong(idx) {
+        currentSongIdx = idx;
+        const s = SONGS[idx];
+        audio.src = s.src;
+        songLoaded = true;
+        updateNowPlaying(s);
+        updateVinyl(s);
+        renderContent();
+      }
 
-  renderSidebar();
-  renderContent();
-}
+      function updateNowPlaying(s) {
+        const art = document.getElementById("np-art");
+        art.className = "np-art " + toneClassForSong(s.id);
+        art.textContent = s.emoji;
+        document.getElementById("np-info").innerHTML =
+          `<div class="np-title">${s.title}</div><div class="np-artist">${s.artist}</div>`;
+      }
 
-// ─── AUDIO ───────────────────────────────────────────────────────────────────
+      function updateVinyl(s) {
+        const label = document.getElementById("vinyl-label");
+        label.className = "vinyl-label " + toneClassForSong(s.id);
+        label.textContent = s.emoji;
+      }
 
-function loadSong(idx) {
-  currentSongIdx = idx;
-  const s = SONGS[idx];
-  audio.src = s.src;
-  songLoaded = true;
-  updateNowPlaying(s);
-  updateVinyl(s);
-  renderContent();
-}
+      function togglePlay() {
+        if (!songLoaded) { loadSong(currentSongIdx); audio.play(); isPlaying = true; }
+        else if (isPlaying) { audio.pause(); isPlaying = false; }
+        else { audio.play(); isPlaying = true; }
+        updatePlayBtn();
+        updateVinylSpin();
+      }
 
-function updateNowPlaying(s) {
-  const art = document.getElementById('np-art');
-  art.style.background = s.color;
-  art.textContent = s.emoji;
-  document.getElementById('np-info').innerHTML = `
-    <div class="np-title">${s.title}</div>
-    <div class="np-artist">${s.artist}</div>
-  `;
-}
+      function updatePlayBtn() {
+        const icon = document.getElementById("play-icon");
+        icon.innerHTML = isPlaying
+          ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'
+          : '<path d="M8 5v14l11-7z"/>';
+      }
 
-function updateVinyl(s) {
-  const label = document.getElementById('vinyl-label');
-  label.style.background = s.color;
-  label.textContent = s.emoji;
-}
+      function updateVinylSpin() {
+        const disc = document.getElementById("vinyl-disc");
+        if (isPlaying) disc.classList.add("spinning");
+        else disc.classList.remove("spinning");
+      }
 
-function togglePlay() {
-  if (!songLoaded) { loadSong(currentSongIdx); audio.play(); isPlaying = true; }
-  else if (isPlaying) { audio.pause(); isPlaying = false; }
-  else { audio.play(); isPlaying = true; }
-  updatePlayBtn();
-  updateVinylSpin();
-}
+      function prevSong() {
+        const wasPlaying = isPlaying;
+        loadSong((currentSongIdx - 1 + SONGS.length) % SONGS.length);
+        isPlaying = wasPlaying;
+        if (wasPlaying) audio.play().catch(() => {});
+        else audio.pause();
+        updatePlayBtn();
+        updateVinylSpin();
+      }
 
-function updatePlayBtn() {
-  const icon = document.getElementById('play-icon');
-  if (isPlaying) {
-    icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-  } else {
-    icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-  }
-}
+      function nextSong() {
+        const wasPlaying = isPlaying;
+        loadSong((currentSongIdx + 1) % SONGS.length);
+        isPlaying = wasPlaying;
+        if (wasPlaying) audio.play().catch(() => {});
+        else audio.pause();
+        updatePlayBtn();
+        updateVinylSpin();
+      }
 
-function updateVinylSpin() {
-  const disc = document.getElementById('vinyl-disc');
-  if (isPlaying) disc.classList.add('spinning');
-  else disc.classList.remove('spinning');
-}
+      function onTimeUpdate() {
+        const cur = audio.currentTime, dur = audio.duration || 0;
+        document.getElementById("time-cur").textContent = fmt(cur);
+        document.getElementById("time-dur").textContent = fmt(dur);
+        document.getElementById("progress-fill").style.width = (dur > 0 ? (cur / dur) * 100 : 0) + "%";
+      }
 
-function prevSong() {
-  const idx = (currentSongIdx - 1 + SONGS.length) % SONGS.length;
-  loadSong(idx);
-  if (isPlaying) { audio.play(); } else { isPlaying = true; audio.play(); updatePlayBtn(); updateVinylSpin(); }
-}
+      function updateDuration() {
+        document.getElementById("time-dur").textContent = fmt(audio.duration);
+      }
 
-function nextSong() {
-  const idx = (currentSongIdx + 1) % SONGS.length;
-  loadSong(idx);
-  if (isPlaying) { audio.play(); } else { isPlaying = true; audio.play(); updatePlayBtn(); updateVinylSpin(); }
-}
+      function seekTo(e) {
+        const track = document.getElementById("progress-track");
+        const rect = track.getBoundingClientRect();
+        if (audio.duration) audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+      }
 
-function onTimeUpdate() {
-  const cur = audio.currentTime;
-  const dur = audio.duration || 0;
-  document.getElementById('time-cur').textContent = fmt(cur);
-  document.getElementById('time-dur').textContent = fmt(dur);
-  const pct = dur > 0 ? (cur / dur * 100) : 0;
-  document.getElementById('progress-fill').style.width = pct + '%';
-}
+      function setVolume(v) { audio.volume = v / 100; }
 
-function updateDuration() {
-  document.getElementById('time-dur').textContent = fmt(audio.duration);
-}
+      function fmt(s) {
+        if (!s || isNaN(s)) return "0:00";
+        const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+        return m + ":" + (sec < 10 ? "0" : "") + sec;
+      }
 
-function seekTo(e) {
-  const track = document.getElementById('progress-track');
-  const rect = track.getBoundingClientRect();
-  const pct = (e.clientX - rect.left) / rect.width;
-  if (audio.duration) audio.currentTime = pct * audio.duration;
-}
+      // ─── VIEWS & TABS ─────────────────────────────────────────────────────────────
 
-function setVolume(v) {
-  audio.volume = v / 100;
-}
+      function switchView(view) {
+        currentView = view;
+        const profBtn = document.getElementById("profile-nav");
+        const tabGroup = document.getElementById("tab-group");
+        if (view === "profile") {
+          profBtn.classList.add("active");
+          tabGroup.style.opacity = "0.4";
+          tabGroup.style.pointerEvents = "none";
+        } else {
+          profBtn.classList.remove("active");
+          tabGroup.style.opacity = "1";
+          tabGroup.style.pointerEvents = "auto";
+        }
+        renderContent();
+      }
 
-function fmt(s) {
-  if (!s || isNaN(s)) return '0:00';
-  const m = Math.floor(s / 60);
-  const sec = Math.floor(s % 60);
-  return m + ':' + (sec < 10 ? '0' : '') + sec;
-}
+      function switchTab(tab) {
+        currentTab = tab;
+        document.getElementById("tab-chat").classList.toggle("active", tab === "chat");
+        document.getElementById("tab-lyrics").classList.toggle("active", tab === "lyrics");
+        if (currentView !== "main") switchView("main");
+        renderContent();
+      }
 
-// ─── VIEWS & TABS ─────────────────────────────────────────────────────────────
+      function renderContent() {
+        const panel = document.getElementById("content-panel");
+        if (currentView === "profile") { renderProfile(panel); return; }
+        if (!songLoaded) { panel.innerHTML = '<div class="no-content">No Content</div>'; return; }
+        if (currentTab === "chat") renderChat(panel);
+        else renderLyrics(panel);
+      }
 
-function switchView(view) {
-  currentView = view;
-  const profBtn = document.getElementById('profile-nav');
-  const tabGroup = document.getElementById('tab-group');
-  if (view === 'profile') {
-    profBtn.classList.add('active');
-    tabGroup.style.opacity = '0.4';
-    tabGroup.style.pointerEvents = 'none';
-  } else {
-    profBtn.classList.remove('active');
-    tabGroup.style.opacity = '1';
-    tabGroup.style.pointerEvents = 'auto';
-  }
-  renderContent();
-}
+      // ─── CHAT ─────────────────────────────────────────────────────────────────────
 
-function switchTab(tab) {
-  currentTab = tab;
-  document.getElementById('tab-chat').classList.toggle('active', tab === 'chat');
-  document.getElementById('tab-lyrics').classList.toggle('active', tab === 'lyrics');
-  if (currentView !== 'main') switchView('main');
-  renderContent();
-}
+      function renderChat(panel) {
+        const msgs = chatData[currentSongIdx] || [];
+        const msgsHTML = msgs.map(m =>
+          `<div class="chat-msg">
+            <div class="chat-avatar ${toneClassForChat(m.color || "#7b68c8")}">${m.avatar}</div>
+            <div class="chat-text">${escHtml(m.msg)}</div>
+          </div>`
+        ).join("");
+        panel.innerHTML = `
+          <div class="chat-wrap">
+            <div class="chat-messages" id="chat-msgs">${msgsHTML}</div>
+            <hr class="chat-divider"/>
+            <div class="chat-input-wrap">
+              <svg class="chat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="white" stroke-width="1.5"/>
+              </svg>
+              <input class="chat-input" id="chat-input" placeholder="Type here"
+                onkeydown="if(event.key==='Enter')sendChat()"/>
+              <button class="send-btn" onclick="sendChat()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+              </button>
+            </div>
+          </div>`;
+        const msgEl = document.getElementById("chat-msgs");
+        msgEl.scrollTop = msgEl.scrollHeight;
+      }
 
-function renderContent() {
-  const panel = document.getElementById('content-panel');
-  if (currentView === 'profile') {
-    renderProfile(panel);
-    return;
-  }
-  if (!songLoaded) {
-    panel.innerHTML = '<div class="no-content">No Content</div>';
-    return;
-  }
-  if (currentTab === 'chat') renderChat(panel);
-  else renderLyrics(panel);
-}
+      function sendChat() {
+        const input = document.getElementById("chat-input");
+        const msg = input.value.trim();
+        if (!msg) return;
+        chatData[currentSongIdx].push({
+          user: user.username, avatar: user.username[0].toUpperCase(), color: "#7b68c8", msg
+        });
+        localStorage.setItem("tt_chat_" + currentSongIdx, JSON.stringify(chatData[currentSongIdx]));
+        input.value = "";
+        renderContent();
+      }
 
-// ─── CHAT ─────────────────────────────────────────────────────────────────────
+      // ─── LYRICS ──────────────────────────────────────────────────────────────────
 
-function renderChat(panel) {
-  const msgs = chatData[currentSongIdx] || [];
-  let msgsHTML = msgs.map(m => `
-    <div class="chat-msg">
-      <div class="chat-avatar" style="background:${m.color || '#7b68c8'}">${m.avatar}</div>
-      <div class="chat-text">${escHtml(m.msg)}</div>
-    </div>
-  `).join('');
+      function renderLyrics(panel) {
+        const lines = SONGS[currentSongIdx].lyrics;
+        const linesHTML = lines.map((l, i) =>
+          l === ""
+            ? `<div class="lyric-line empty"></div>`
+            : `<div class="lyric-line" id="lyric-${i}" onclick="jumpToLyric(${i})">${escHtml(l)}</div>`
+        ).join("");
+        panel.innerHTML = `<div class="lyrics-wrap"><div class="lyrics-text-col">${linesHTML}</div></div>`;
+        highlightLyric();
+      }
 
-  panel.innerHTML = `
-    <div class="chat-wrap">
-      <div class="chat-messages" id="chat-msgs">${msgsHTML}</div>
-      <hr class="chat-divider"/>
-      <div class="chat-input-wrap">
-        <svg class="chat-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="white" stroke-width="1.5"/>
-        </svg>
-        <input class="chat-input" id="chat-input" placeholder="Type here" onkeydown="if(event.key==='Enter')sendChat()"/>
-        <button class="send-btn" onclick="sendChat()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
-        </button>
-      </div>
-    </div>
-  `;
-  const msgEl = document.getElementById('chat-msgs');
-  msgEl.scrollTop = msgEl.scrollHeight;
-}
+      function highlightLyric() {
+        if (!audio.duration) return;
+        const pct = audio.currentTime / audio.duration;
+        const lines = SONGS[currentSongIdx].lyrics;
+        const nonEmpty = lines.filter(l => l !== "");
+        const idx = Math.floor(pct * nonEmpty.length);
+        document.querySelectorAll(".lyric-line").forEach((el, i) => el.classList.toggle("active", i === idx));
+        const active = document.querySelector(".lyric-line.active");
+        if (active) active.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
 
-function sendChat() {
-  const input = document.getElementById('chat-input');
-  const msg = input.value.trim();
-  if (!msg) return;
-  const entry = { user: user.username, avatar: user.username[0].toUpperCase(), color: '#7b68c8', msg };
-  chatData[currentSongIdx].push(entry);
-  localStorage.setItem('tt_chat_' + currentSongIdx, JSON.stringify(chatData[currentSongIdx]));
-  input.value = '';
-  renderContent();
-}
+      function jumpToLyric(i) {
+        const lines = SONGS[currentSongIdx].lyrics.filter(l => l !== "");
+        if (!audio.duration) return;
+        audio.currentTime = (i / lines.length) * audio.duration;
+        if (!isPlaying) { audio.play(); isPlaying = true; updatePlayBtn(); updateVinylSpin(); }
+      }
 
-// ─── LYRICS ──────────────────────────────────────────────────────────────────
+      audio.addEventListener("timeupdate", () => {
+        if (currentView === "main" && currentTab === "lyrics" && songLoaded) highlightLyric();
+      });
 
-function renderLyrics(panel) {
-  const lines = SONGS[currentSongIdx].lyrics;
-  const linesHTML = lines.map((l, i) =>
-    l === '' ? `<div class="lyric-line empty"></div>` :
-    `<div class="lyric-line" id="lyric-${i}" onclick="jumpToLyric(${i})">${escHtml(l)}</div>`
-  ).join('');
-  panel.innerHTML = `
-    <div class="lyrics-wrap">
-      <div class="lyrics-text-col">${linesHTML}</div>
-    </div>
-  `;
-  highlightLyric();
-}
+      // ─── PROFILE ──────────────────────────────────────────────────────────────────
 
-function highlightLyric() {
-  if (!audio.duration) return;
-  const pct = audio.currentTime / audio.duration;
-  const lines = SONGS[currentSongIdx].lyrics;
-  const nonEmpty = lines.filter(l => l !== '');
-  const idx = Math.floor(pct * nonEmpty.length);
-  document.querySelectorAll('.lyric-line').forEach((el, i) => {
-    el.classList.toggle('active', i === idx);
-  });
-  const active = document.querySelector('.lyric-line.active');
-  if (active) active.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
+      function renderProfile(panel) {
+        const u = user;
+        const initials = u.username ? u.username.slice(0, 2).toUpperCase() : "?";
+        const playlists = u.playlists || [];
+        const playlistsHTML = playlists.length === 0
+          ? `<p class="profile-bio-placeholder">No playlists yet.</p>`
+          : playlists.map(pl => `
+              <div class="profile-playlist-card" onclick="clickPlaylist('${escHtml(pl.name)}')">
+                <div class="profile-playlist-art ${toneClassForColor(pl.color || "#231638")}">
+                  <span>${pl.emoji || "🎵"}</span>
+                </div>
+                <div class="profile-playlist-name">${escHtml(pl.name)}</div>
+              </div>`).join("");
+        panel.innerHTML = `
+          <div class="profile-wrap">
+            <div class="profile-header">
+              <div class="profile-avatar tone-chat-user" onclick="openBioModal()" title="Edit profile">${initials}</div>
+              <div class="profile-info">
+                <div class="profile-username">${escHtml(u.username)}</div>
+                <div class="profile-joined">Joined in ${escHtml(u.joined)}</div>
+                <div class="profile-bio-label">Bio</div>
+                <div class="profile-bio" onclick="openBioModal()">
+                  ${u.bio ? escHtml(u.bio) : '<span class="profile-bio-placeholder">Click to add a bio...</span>'}
+                </div>
+              </div>
+            </div>
+            <div class="profile-playlists-title">Playlist of ${escHtml(u.username)}</div>
+            <div class="profile-playlists-grid">${playlistsHTML}</div>
+            <div class="profile-actions">
+              <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+          </div>`;
+      }
 
-function jumpToLyric(i) {
-  const lines = SONGS[currentSongIdx].lyrics.filter(l => l !== '');
-  if (!audio.duration) return;
-  const pct = i / lines.length;
-  audio.currentTime = pct * audio.duration;
-  if (!isPlaying) { audio.play(); isPlaying = true; updatePlayBtn(); updateVinylSpin(); }
-}
+      function openBioModal() {
+        document.getElementById("edit-username").value = user.username || "";
+        document.getElementById("edit-bio").value = user.bio || "";
+        document.getElementById("bio-modal").classList.add("show");
+      }
+      function closeBioModal() { document.getElementById("bio-modal").classList.remove("show"); }
+      function saveBio() {
+        const uname = document.getElementById("edit-username").value.trim();
+        const bio = document.getElementById("edit-bio").value.trim();
+        if (!uname) return;
+        user.username = uname; user.bio = bio;
+        saveUser(); closeBioModal(); renderContent();
+      }
 
-audio.addEventListener('timeupdate', () => {
-  if (currentView === 'main' && currentTab === 'lyrics' && songLoaded) {
-    highlightLyric();
-  }
-});
+      function logout() {
+        localStorage.removeItem("tt_current");
+        window.location.href = "admin.html";
+      }
 
-// ─── PROFILE ──────────────────────────────────────────────────────────────────
+      // ─── SIDEBAR ─────────────────────────────────────────────────────────────────
 
-function renderProfile(panel) {
-  const u = user;
-  const initials = u.username ? u.username.slice(0,2).toUpperCase() : '?';
-  const playlists = u.playlists || [];
-  const playlistsHTML = playlists.length === 0
-    ? `<p style="color:var(--muted);font-size:14px;">No playlists yet.</p>`
-    : playlists.map(pl => `
-        <div class="profile-playlist-card" onclick="clickPlaylist('${escHtml(pl.name)}')">
-          <div class="profile-playlist-art" style="background:${pl.color||'#231638'}">
-            <span>${pl.emoji || '🎵'}</span>
-          </div>
-          <div class="profile-playlist-name">${escHtml(pl.name)}</div>
-        </div>
-      `).join('');
+      function renderSidebar() {
+        const recentCard = document.getElementById("recent-card");
+        if (recentSearches.length === 0) {
+          recentCard.innerHTML = '<div class="no-recent">No Recent search</div>';
+        } else {
+          const items = recentSearches.slice(0, 5).map(id => {
+            const s = SONGS[id];
+            if (!s) return "";
+            return `<div class="song-item ${currentSongIdx === id && songLoaded ? "playing" : ""}" onclick="playSongFromSidebar(${id})">
+              <div class="song-item-art ${toneClassForSong(id)}">${s.emoji}</div>
+              <div class="song-item-info">
+                <div class="song-item-title">${escHtml(s.title)}</div>
+                <div class="song-item-artist">${escHtml(s.artist)}</div>
+              </div>
+            </div>`;
+          }).join("");
+          recentCard.innerHTML = items || '<div class="no-recent">No Recent search</div>';
+        }
+        const pl = user.playlists || [];
+        document.getElementById("playlists-list").innerHTML = pl.map(p => `
+          <div class="playlist-item">
+            <div class="playlist-art-single" style="background:${p.color || "#231638"};border-radius:8px;">${p.emoji || "🎵"}</div>
+            <div>
+              <div class="playlist-name">${escHtml(p.name)}</div>
+              <div class="playlist-count">${p.songs.length} song${p.songs.length !== 1 ? "s" : ""}</div>
+            </div>
+          </div>`).join("");
+      }
 
-  panel.innerHTML = `
-    <div class="profile-wrap">
-      <div class="profile-header">
-        <div class="profile-avatar" onclick="openBioModal()" title="Edit profile">
-          ${initials}
-        </div>
-        <div class="profile-info">
-          <div class="profile-username">${escHtml(u.username)}</div>
-          <div class="profile-joined">Joined in ${escHtml(u.joined)}</div>
-          <div class="profile-bio-label">Bio</div>
-          <div class="profile-bio" onclick="openBioModal()">${u.bio ? escHtml(u.bio) : '<span style="color:var(--muted)">Click to add a bio...</span>'}</div>
-        </div>
-      </div>
-      <div class="profile-playlists-title">Playlist of ${escHtml(u.username)}</div>
-      <div class="profile-playlists-grid">${playlistsHTML}</div>
-      <div style="margin-top:24px;">
-        <button onclick="logout()" style="background:transparent;border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:8px 18px;color:var(--muted);font-family:Outfit,sans-serif;font-size:13px;cursor:pointer;">Logout</button>
-      </div>
-    </div>
-  `;
-}
+      function playSongFromSidebar(idx) {
+        loadSong(idx); isPlaying = true;
+        audio.play().catch(() => {});
+        updatePlayBtn(); updateVinylSpin();
+        if (!recentSearches.includes(idx)) {
+          recentSearches.unshift(idx);
+          localStorage.setItem("tt_recent", JSON.stringify(recentSearches));
+        }
+        renderSidebar();
+      }
 
-function openBioModal() {
-  document.getElementById('edit-username').value = user.username || '';
-  document.getElementById('edit-bio').value = user.bio || '';
-  document.getElementById('bio-modal').classList.add('show');
-}
-function closeBioModal() {
-  document.getElementById('bio-modal').classList.remove('show');
-}
-function saveBio() {
-  const uname = document.getElementById('edit-username').value.trim();
-  const bio = document.getElementById('edit-bio').value.trim();
-  if (!uname) return;
-  user.username = uname;
-  user.bio = bio;
-  saveUser();
-  closeBioModal();
-  renderContent();
-}
+      // ─── SEARCH ──────────────────────────────────────────────────────────────────
 
-function logout() {
-  localStorage.removeItem('tt_current');
-  window.location.href = 'index.html';
-}
+      function onSearch(val) {
+        const dropdown = document.getElementById("search-dropdown");
+        if (!val.trim()) { dropdown.classList.remove("show"); return; }
+        const q = val.toLowerCase();
+        const results = SONGS.filter(s =>
+          s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)
+        );
+        if (results.length === 0) { dropdown.classList.remove("show"); return; }
+        dropdown.innerHTML = results.map(s => `
+          <div class="search-result-item" onclick="selectSearchResult(${s.id})">
+            <div class="search-result-art ${toneClassForSong(s.id)}">${s.emoji}</div>
+            <div>
+              <div class="search-result-title">${escHtml(s.title)}</div>
+              <div class="search-result-artist">${escHtml(s.artist)}</div>
+            </div>
+          </div>`).join("");
+        dropdown.classList.add("show");
+      }
 
-// ─── SIDEBAR ─────────────────────────────────────────────────────────────────
+      function closeSearch() { document.getElementById("search-dropdown").classList.remove("show"); }
 
-function renderSidebar() {
-  // Recent
-  const recentCard = document.getElementById('recent-card');
-  const noRecent = document.getElementById('no-recent-msg');
-  if (recentSearches.length === 0) {
-    recentCard.innerHTML = '<div class="no-recent">No Recent search</div>';
-  } else {
-    const items = recentSearches.slice(0,5).map(id => {
-      const s = SONGS[id];
-      if (!s) return '';
-      return `
-        <div class="song-item ${currentSongIdx === id && songLoaded ? 'playing' : ''}" onclick="playSongFromSidebar(${id})">
-          <div class="song-item-art" style="background:${s.color}">${s.emoji}</div>
-          <div class="song-item-info">
-            <div class="song-item-title">${escHtml(s.title)}</div>
-            <div class="song-item-artist">${escHtml(s.artist)}</div>
-          </div>
-        </div>
-      `;
-    }).join('');
-    recentCard.innerHTML = items || '<div class="no-recent">No Recent search</div>';
-  }
+      function selectSearchResult(idx) {
+        document.getElementById("search-input").value = "";
+        document.getElementById("search-dropdown").classList.remove("show");
+        if (!recentSearches.includes(idx)) {
+          recentSearches.unshift(idx);
+          if (recentSearches.length > 5) recentSearches.pop();
+          localStorage.setItem("tt_recent", JSON.stringify(recentSearches));
+        }
+        playSongFromSidebar(idx);
+        renderSidebar();
+      }
 
-  // Playlists
-  const pl = user.playlists || [];
-  const plList = document.getElementById('playlists-list');
-  if (pl.length === 0) {
-    plList.innerHTML = '';
-  } else {
-    plList.innerHTML = pl.map(p => `
-      <div class="playlist-item">
-        <div class="playlist-art-single" style="background:${p.color||'#231638'};border-radius:8px;">${p.emoji||'🎵'}</div>
-        <div>
-          <div class="playlist-name">${escHtml(p.name)}</div>
-          <div class="playlist-count">${p.songs.length} song${p.songs.length !== 1 ? 's' : ''}</div>
-        </div>
-      </div>
-    `).join('');
-  }
-}
+      // ─── PLAYLISTS ────────────────────────────────────────────────────────────────
 
-function playSongFromSidebar(idx) {
-  loadSong(idx);
-  isPlaying = true;
-  audio.play().catch(()=>{});
-  updatePlayBtn();
-  updateVinylSpin();
-  if (!recentSearches.includes(idx)) {
-    recentSearches.unshift(idx);
-    localStorage.setItem('tt_recent', JSON.stringify(recentSearches));
-  }
-  renderSidebar();
-}
+      function openPlaylistModal() {
+        const list = document.getElementById("song-select-list");
+        list.innerHTML = SONGS.map(s => `
+          <label class="song-check">
+            <input type="checkbox" name="pl-song" value="${s.id}"/>
+            <div class="song-select-art ${toneClassForSong(s.id)}">${s.emoji}</div>
+            <span>${escHtml(s.title)}</span>
+          </label>`).join("");
+        document.getElementById("new-playlist-name").value = "";
+        document.getElementById("playlist-modal").classList.add("show");
+      }
+      function closePlaylistModal() { document.getElementById("playlist-modal").classList.remove("show"); }
+      function createPlaylist() {
+        const name = document.getElementById("new-playlist-name").value.trim();
+        if (!name) return;
+        const checked = [...document.querySelectorAll("[name=pl-song]:checked")].map(c => +c.value);
+        const firstSong = checked.length > 0 ? SONGS[checked[0]] : null;
+        user.playlists = user.playlists || [];
+        user.playlists.push({
+          name, songs: checked,
+          color: firstSong ? firstSong.color : "#231638",
+          emoji: firstSong ? firstSong.emoji : "🎵"
+        });
+        saveUser(); closePlaylistModal(); renderSidebar();
+      }
 
-// ─── SEARCH ──────────────────────────────────────────────────────────────────
+      function clickPlaylist(name) {
+        const pl = (user.playlists || []).find(p => p.name === name);
+        if (!pl || !pl.songs.length) return;
+        playSongFromSidebar(pl.songs[0]);
+      }
 
-function onSearch(val) {
-  const dropdown = document.getElementById('search-dropdown');
-  if (!val.trim()) { dropdown.classList.remove('show'); return; }
-  const q = val.toLowerCase();
-  const results = SONGS.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
-  if (results.length === 0) { dropdown.classList.remove('show'); return; }
-  dropdown.innerHTML = results.map(s => `
-    <div class="search-result-item" onclick="selectSearchResult(${s.id})">
-      <div class="search-result-art" style="background:${s.color}">${s.emoji}</div>
-      <div>
-        <div style="font-weight:600">${escHtml(s.title)}</div>
-        <div style="color:var(--muted);font-size:11px">${escHtml(s.artist)}</div>
-      </div>
-    </div>
-  `).join('');
-  dropdown.classList.add('show');
-}
+      // ─── UTILS ───────────────────────────────────────────────────────────────────
 
-function closeSearch() {
-  document.getElementById('search-dropdown').classList.remove('show');
-}
+      function saveUser() {
+        localStorage.setItem("tt_current", JSON.stringify(user));
+        const users = JSON.parse(localStorage.getItem("tt_users") || "[]");
+        const idx = users.findIndex(u => u.email === user.email);
+        if (idx >= 0) users[idx] = user;
+        localStorage.setItem("tt_users", JSON.stringify(users));
+      }
 
-function selectSearchResult(idx) {
-  document.getElementById('search-input').value = '';
-  document.getElementById('search-dropdown').classList.remove('show');
-  if (!recentSearches.includes(idx)) {
-    recentSearches.unshift(idx);
-    if (recentSearches.length > 5) recentSearches.pop();
-    localStorage.setItem('tt_recent', JSON.stringify(recentSearches));
-  }
-  playSongFromSidebar(idx);
-  renderSidebar();
-}
+      function escHtml(s) {
+        return String(s)
+          .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      }
 
-// ─── PLAYLISTS ────────────────────────────────────────────────────────────────
+      function toneClassForSong(id) { return "tone-song-" + id; }
 
-function openPlaylistModal() {
-  const list = document.getElementById('song-select-list');
-  list.innerHTML = SONGS.map(s => `
-    <label class="song-check">
-      <input type="checkbox" name="pl-song" value="${s.id}"/>
-      <div style="background:${s.color};width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center">${s.emoji}</div>
-      <span>${escHtml(s.title)}</span>
-    </label>
-  `).join('');
-  document.getElementById('new-playlist-name').value = '';
-  document.getElementById('playlist-modal').classList.add('show');
-}
-function closePlaylistModal() {
-  document.getElementById('playlist-modal').classList.remove('show');
-}
-function createPlaylist() {
-  const name = document.getElementById('new-playlist-name').value.trim();
-  if (!name) return;
-  const checked = [...document.querySelectorAll('[name=pl-song]:checked')].map(c => +c.value);
-  const firstSong = checked.length > 0 ? SONGS[checked[0]] : null;
-  const pl = {
-    name, songs: checked,
-    color: firstSong ? firstSong.color : '#231638',
-    emoji: firstSong ? firstSong.emoji : '🎵'
-  };
-  user.playlists = user.playlists || [];
-  user.playlists.push(pl);
-  saveUser();
-  closePlaylistModal();
-  renderSidebar();
-}
+      function toneClassForColor(color) {
+        const n = String(color || "").toLowerCase();
+        if (n === "#b22222") return "tone-song-0";
+        if (n === "#1a5276") return "tone-song-1";
+        if (n === "#5b4b5d") return "tone-song-2";
+        if (n === "#3e3a54") return "tone-song-3";
+        if (n === "#7a4e2d") return "tone-song-4";
+        if (n === "#4a6fa5") return "tone-song-5";
+        return "tone-song-default";
+      }
 
-function clickPlaylist(name) {
-  const pl = (user.playlists||[]).find(p => p.name === name);
-  if (!pl || !pl.songs.length) return;
-  playSongFromSidebar(pl.songs[0]);
-}
+      function toneClassForChat(color) {
+        const n = String(color || "").toLowerCase();
+        if (n === "#c0392b") return "tone-chat-red";
+        if (n === "#8e44ad") return "tone-chat-purple";
+        if (n === "#2980b9") return "tone-chat-blue";
+        if (n === "#27ae60") return "tone-chat-green";
+        if (n === "#e67e22") return "tone-chat-orange";
+        if (n === "#7b68c8") return "tone-chat-lavender";
+        return "tone-chat-user";
+      }
 
-// ─── UTILS ───────────────────────────────────────────────────────────────────
-
-function saveUser() {
-  localStorage.setItem('tt_current', JSON.stringify(user));
-  const users = JSON.parse(localStorage.getItem('tt_users') || '[]');
-  const idx = users.findIndex(u => u.email === user.email);
-  if (idx >= 0) users[idx] = user;
-  localStorage.setItem('tt_users', JSON.stringify(users));
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ─── START ────────────────────────────────────────────────────────────────────
-init();
-</script>
-</body>
+      // ─── START ────────────────────────────────────────────────────────────────────
+      init();
+    </script>
+  </body>
 </html>
